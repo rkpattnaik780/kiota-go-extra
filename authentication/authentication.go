@@ -42,6 +42,7 @@ func (r *RHAccessTokenProvider) GetAuthorizationToken(context context.Context, u
 	return tokens.AccessToken, nil
 }
 
+// GetAllowedHostsValidator returns list of allowed hosts
 func (r *RHAccessTokenProvider) GetAllowedHostsValidator() *authentication.AllowedHostsValidator {
 
 	allowedHostsValidator := authentication.NewAllowedHostsValidator(r.allowedHosts)
