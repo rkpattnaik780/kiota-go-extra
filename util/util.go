@@ -1,4 +1,4 @@
-package authentication
+package util
 
 import (
 	"context"
@@ -6,63 +6,13 @@ import (
 	"fmt"
 	"time"
 
-	u "net/url"
-
 	"github.com/Nerzal/gocloak/v7"
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/microsoft/kiota-abstractions-go/authentication"
 )
 
 type Credentials struct {
 	AccessToken  string
 	RefreshToken string
-}
-
-type RHAccessTokenProvider struct {
-	credentials  Credentials
-	allowedHosts []string
-}
-
-func (r *RHAccessTokenProvider) GetAuthorizationToken(context context.Context, url *u.URL, additionalAuthenticationContext map[string]interface{}) (string, error) {
-
-	isAccessTokenValid, err := IsValid(r.credentials.AccessToken)
-	if err != nil {
-		return "", err
-	}
-
-	if isAccessTokenValid {
-		return r.credentials.AccessToken, nil
-	}
-
-	tokens, err := RefreshTokens(r.credentials)
-	if err != nil {
-		return "", err
-	}
-
-	return tokens.AccessToken, nil
-}
-
-func (r *RHAccessTokenProvider) GetAllowedHostsValidator() *authentication.AllowedHostsValidator {
-
-	allowedHostsValidator := authentication.NewAllowedHostsValidator(r.allowedHosts)
-
-	return &allowedHostsValidator
-
-}
-
-func NewRHAccessTokenProvider(tokens map[string]string, allowedHosts []string) RHAccessTokenProvider {
-
-	credentials := Credentials{
-		AccessToken:  tokens["access-token"],
-		RefreshToken: tokens["refresh-token"],
-	}
-
-	RHAS := RHAccessTokenProvider{
-		credentials:  credentials,
-		allowedHosts: allowedHosts,
-	}
-
-	return RHAS
 }
 
 // NeedsRefresh checks if the access token is missing,
