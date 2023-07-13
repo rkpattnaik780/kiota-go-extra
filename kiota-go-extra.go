@@ -14,7 +14,7 @@ type RHAccessTokenProvider struct {
 	allowedHosts []string
 }
 
-func (r *RHAccessTokenProvider) GetAuthorizationToken(context context.Context, url *u.URL, additionalAuthenticationContext map[string]interface{}) (string, error) {
+func (r RHAccessTokenProvider) GetAuthorizationToken(context context.Context, url *u.URL, additionalAuthenticationContext map[string]interface{}) (string, error) {
 
 	isAccessTokenValid, err := util.IsValid(r.credentials.AccessToken)
 	if err != nil {
@@ -34,7 +34,7 @@ func (r *RHAccessTokenProvider) GetAuthorizationToken(context context.Context, u
 }
 
 // GetAllowedHostsValidator returns list of allowed hosts
-func (r *RHAccessTokenProvider) GetAllowedHostsValidator() *authentication.AllowedHostsValidator {
+func (r RHAccessTokenProvider) GetAllowedHostsValidator() *authentication.AllowedHostsValidator {
 
 	allowedHostsValidator := authentication.NewAllowedHostsValidator(r.allowedHosts)
 
