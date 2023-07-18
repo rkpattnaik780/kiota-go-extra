@@ -1,38 +1,15 @@
 package util
 
 import (
-	"context"
-	"crypto/tls"
 	"fmt"
 	"time"
 
-	"github.com/Nerzal/gocloak/v7"
 	"github.com/golang-jwt/jwt/v4"
 )
 
 type Credentials struct {
 	AccessToken  string
 	RefreshToken string
-}
-
-// NeedsRefresh checks if the access token is missing,
-// expired or nearing expiry and should be refreshed
-func needsRefresh(c Credentials) bool {
-	if c.AccessToken == "" && c.RefreshToken != "" {
-		return true
-	}
-
-	now := time.Now()
-	expires, left, err := GetExpiry(c.AccessToken, now)
-	if err != nil {
-		return false
-	}
-
-	if !expires || left > 5*time.Minute {
-		return false
-	}
-
-	return true
 }
 
 func GetExpiry(tokenStr string, now time.Time) (expires bool,
@@ -103,33 +80,4 @@ func IsValid(token string) (tokenIsValid bool, err error) {
 		}
 	}
 	return
-}
-
-// RefreshTokens will fetch a refreshed copy of the access token and refresh token from the authentication server
-// The new tokens will have an increased expiry time and are persisted in the config and connection
-func RefreshTokens(tokens Credentials) (refreshedTokens *Credentials, err error) {
-
-	baseAuthURL := "http://localhost:8090"
-
-	keycloak := gocloak.NewClient(baseAuthURL)
-	restyClient := *keycloak.RestyClient()
-	// #nosec 402
-	restyClient.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
-	keycloak.SetRestyClient(&restyClient)
-
-	// c.logger.Debug("Refreshing tokens")
-	// nolint:govet
-	refreshedTk, err := keycloak.RefreshToken(context.Background(), tokens.RefreshToken, "apicurio-client", "", "apicurio-local")
-	if err != nil {
-		return nil, err
-	}
-
-	if refreshedTk.AccessToken != tokens.AccessToken {
-		refreshedTokens.AccessToken = refreshedTk.AccessToken
-	}
-	if refreshedTk.RefreshToken != tokens.RefreshToken {
-		refreshedTokens.RefreshToken = refreshedTk.RefreshToken
-	}
-
-	return refreshedTokens, err
 }
